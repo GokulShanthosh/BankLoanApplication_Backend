@@ -1,4 +1,5 @@
 const CustomError = require("../Utils/customError");
+const multer = require('multer');
 
 const handleCastErrorDb = (err) => {
   const message = `Invalid ${err.path}: ${err.value}`;

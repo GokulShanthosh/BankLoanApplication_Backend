@@ -3,33 +3,34 @@ const CustomError = require("../Utils/CustomError");
 const AsynHandler = require("../Utils/catchAsync");
 const ApiFeatures = require("../Utils/apiFeatures");
 
-exports.createNewForm = AsynHandler(async (req, res) => {
-  // 1. Generate a unique application ID
-  const applicationId = `APP-${Date.now()}-${Math.random()
-    .toString(36)
-    .substring(2, 9)
-    .toUpperCase()}`; // Example
-
-  // 2. Create the form with the request body and the application ID
-  const form = await Form.create({
-    ...req.body,
-    applicationId: applicationId, // Store the generated ID
-  });
-
-  // 3. (Optional) If you still need to add emailId from req.user:
-  if (req.user && req.user.email) {
-    form.emailId = req.user.email;
-    await form.save(); // Save again to persist the emailId
+exports.createNewForm = AsynHandler(async (req, res, next) => {
+  // Handle file uploads
+  const files = req.files;
+  if (!files?.incomeProof) {
+    return next(new CustomError("Income proof document is required", 400));
   }
 
-  // 4. Send the response
+  const formData = {
+    ...req.body,
+    incomeProof: files.incomeProof[0].path,
+    collateralDocument: files.collateralDocument?.[0]?.path || null
+  };
+
+  // Add user email if available
+  if (req.user?.email) {
+    formData.emailId = req.user.email;
+  }
+
+  const form = await Form.create(formData);
+
   res.status(201).json({
     status: "success",
     data: {
-      form, // The form now includes the applicationId
-    },
+      form
+    }
   });
 });
+
 
 exports.getAllForms = AsynHandler(async (req, res) => {
   const features = new ApiFeatures(Form.find(), req.query)
@@ -51,8 +52,10 @@ exports.getAllForms = AsynHandler(async (req, res) => {
 
 exports.getLoginForms = AsynHandler(async (req, res) => {
   console.log(req.user.email);
-
+  console.log("hi");
+  
   const loginForms = await Form.find({ emailId: req.user.email });
+  console.log(loginForms);
   
   res.status(200).json({
     status: "success",
