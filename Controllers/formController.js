@@ -53,7 +53,7 @@ exports.getLoginForms = AsynHandler(async (req, res) => {
   console.log(req.user.email);
 
   const loginForms = await Form.find({ emailId: req.user.email });
-
+  
   res.status(200).json({
     status: "success",
     results: loginForms.length,

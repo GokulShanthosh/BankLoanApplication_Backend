@@ -42,13 +42,11 @@ const movieSchema = new mongoose.Schema(
     },
     emailId: {
       type: String,
-      unique: true,
       // required: [true, "Email ID is required"],
       validate: [validator.isEmail, "Enter valid email"],
     },
     phoneNumber: {
       type: String,
-      unique: true,
       required: [true, "Phone number field is required"],
       validate: [validator.isMobilePhone, "Enter valid mobile number"],
     },
