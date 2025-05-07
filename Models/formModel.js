@@ -180,6 +180,7 @@ const formSchema = new mongoose.Schema(
       },
       validate: {
         validator: function(v) {
+          if (v === null) return true;
           return typeof v === 'string' && v.length > 0;
         },
         message: "Invalid collateral document path"
